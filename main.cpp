@@ -1,5 +1,5 @@
 /*
-2 de septiembre de 2024
+4 de septiembre de 2024
 Vanessa Reteguín - 375533
 
 Problema de las 7 reinas
@@ -17,18 +17,19 @@ Instrucciones:
 
 /* ------------------------- Libraries ------------------------- */
 #include <iostream> /* cin/cout */
+#include <map>
 using namespace std;
 
 /* ------------------------- Functions ------------------------- */
 void diplayMenu() {
     cout << endl
-         << "\n.----------------."
-            "\n||  -{ MENU }-  ||"
-            "\n.----------------."
+         << "\n.-----------------------."
+            "\n||      -{ MENU }-     ||"
+            "\n.-----------------------."
             "\n| [1] Imprimir tablero  |"
-            "\n| [2] Opción 2.  |"
-            "\n|     [3] Salir  |"
-            "\n.----------------.\n";
+            "\n| [2] Optimizar tablero |"
+            "\n|            [3] Salir  |"
+            "\n.-----------------------.\n";
 }
 
 void endTitle() {
@@ -38,21 +39,52 @@ void endTitle() {
             "\n(\\|||/)        FIN      \n";
 }
 
-void printBoard() {
+void printBoard(int queensCoordinates[][8]) {
     /* - Auxiliaries - */
-    int i, j, size = 8;
+    int i, j, k = 1, size = 8;
+
+    cout << "     ";
+    for (i = 0; i < size; i++) {
+        cout << (char)(65 + i) << "   ";
+    }
+    cout << endl;
 
     for (i = 0; i <= (size * 2); i++) {
         if (i % 2 == 0) {
-            for (j = 0; j <= (size * 2); j++) {
+            for (j = 0; j < size; j++) {
                 if (j == 0) {
                     cout << "   +";
                 }
                 cout << "---+";
             }
         } else {
-            cout << "a";
+            cout << " " << k;
+            for (j = 0; j < size; j++) {
+                if (j == 0) {
+                    cout << " |";
+                }
+
+                if (queensCoordinates[k - 1][j] == 1) {
+                    if (j % 2 == 0 && (k % 2 == 0)) {
+                        cout << "█♛█|";
+                    } else if (j % 2 == 1 && (k % 2 == 1)) {
+                        cout << "█♛█|";
+                    } else {
+                        cout << " ♛ |";
+                    }
+                } else {
+                    if (j % 2 == 0 && (k % 2 == 0)) {
+                        cout << "███|";
+                    } else if (j % 2 == 1 && (k % 2 == 1)) {
+                        cout << "███|";
+                    } else {
+                        cout << "   |";
+                    }
+                }
+            }
+            k++;
         }
+
         cout << endl;
     }
 }
@@ -62,6 +94,13 @@ int main() {
     /* - Menu - */
     int userChoice;
     bool run = true;
+
+    /* - Chess Board - */
+    int queensCoordinates[8][8] = {
+        {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0}};
 
     /* --------------------------- Code ---------------------------- */
     while (run == true) {
@@ -73,7 +112,8 @@ int main() {
 
         switch (userChoice) {
             case 1:
-                printBoard();
+
+                printBoard(queensCoordinates);
                 break;
 
             case 2:
