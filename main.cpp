@@ -16,6 +16,9 @@ Instrucciones:
 */
 
 /* ------------------------- Libraries ------------------------- */
+#include <stdlib.h> /* srand */
+#include <time.h>   /* time */
+
 #include <iostream> /* cin/cout */
 #include <map>
 using namespace std;
@@ -89,6 +92,34 @@ void printBoard(int queensCoordinates[][8]) {
     }
 }
 
+int randomNum(int lower, int upper) {
+    int num;
+
+    num = (rand() % (upper - lower + 1)) + lower;
+    return num;
+}
+
+void newRandomIndividual() {
+    int i;
+    int individual[8];  // = 24 bits
+
+    for (i = 0; i < 8; i++) {
+        individual[i] = randomNum(0, 8);
+        cout << individual[i];
+    }
+
+    cout << endl;
+}
+
+void optimizeChessBoard(int populationSize, int generations) {
+    int i;
+
+    for (i = 0; i < populationSize; i++) {
+        cout << "#" << i + 1 << " ";
+        newRandomIndividual();
+    }
+}
+
 int main() {
     /* ------------------------- Variables ------------------------- */
     /* - Menu - */
@@ -102,6 +133,12 @@ int main() {
         {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0}};
 
+    /* - Algorithm constraints - */
+    int populationSize, generations;
+
+    /* Random numbers seed */
+    srand(time(NULL));
+
     /* --------------------------- Code ---------------------------- */
     while (run == true) {
         diplayMenu();
@@ -112,12 +149,26 @@ int main() {
 
         switch (userChoice) {
             case 1:
-
                 printBoard(queensCoordinates);
                 break;
 
             case 2:
-                cout << endl << "Opción 2";
+                cout << "Ingrese tamaño de la población: ";
+                while (!((cin >> populationSize) &&
+                         (populationSize >= 1 && populationSize <= 200))) {
+                    cin.clear();
+                    cin.ignore();
+                }
+
+                cout << "Ingrese el número de generaciones: ";
+                while (!((cin >> generations) &&
+                         (generations >= 1 && generations <= 200))) {
+                    cin.clear();
+                    cin.ignore();
+                }
+
+                optimizeChessBoard(populationSize, generations);
+
                 break;
 
             case 3:
