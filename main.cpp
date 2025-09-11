@@ -15,12 +15,22 @@ Luis Fernando Gutiérrez Marfileño
 Instrucciones:
 */
 
+/* ------------ Resources / Documentation involved ------------- */
+// std::random_shuffle, std::shuffle :
+// https://en.cppreference.com/w/cpp/algorithm/random_shuffle.html
+
 /* ------------------------- Libraries ------------------------- */
 #include <stdlib.h> /* srand */
 #include <time.h>   /* time */
 
+#include <algorithm>
+#include <cmath>    /* abs(), floor() */
 #include <iostream> /* cin/cout */
+#include <iterator>
 #include <map>
+#include <random>
+#include <vector>
+
 using namespace std;
 
 /* ------------------------- Functions ------------------------- */
@@ -92,32 +102,114 @@ void printBoard(int queensCoordinates[][8]) {
     }
 }
 
-int randomNum(int lower, int upper) {
-    int num;
-
-    num = (rand() % (upper - lower + 1)) + lower;
-    return num;
+bool compare(pair<int, string>& a, pair<int, string>& b) {
+    return a.second < b.second;
 }
 
-void newRandomIndividual() {
+vector<int> newIndividual() {
     int i;
-    int individual[8];  // = 24 bits
+    vector<int> individual{0, 1, 2, 3, 4, 5, 6, 7};
 
-    for (i = 0; i < 8; i++) {
-        individual[i] = randomNum(0, 8);
-        cout << individual[i];
+    random_device rd;
+    mt19937 random(rd());
+
+    shuffle(individual.begin(), individual.end(), random);
+
+    for (auto i = individual.begin(); i != individual.end(); ++i) {
+        std::cout << *i << ' ';
+    }
+    cout << endl;
+
+    return individual;
+}
+
+int fitness(vector<int> chromosome) {
+    int a = 0, b = 1;
+    int globalMax = 28, conflicts = 0;
+
+    for (auto i = chromosome.begin(); i != chromosome.end(); ++i) {
+        for (auto j = next(chromosome.begin()); j != chromosome.end(); ++j) {
+            // cout << *i << "-" << *j << " ";
+
+            // Same row
+            if (*i == *j) {
+                conflicts++;
+            }
+
+            // Same diagonal: |x1 - x2| == |y1 - y2|
+            if (abs(a - b) == abs(*i - *j)) {
+                conflicts++;
+            }
+
+            b++;
+        }
+        // cout << endl;
+        a++;
+
+        // cout << "\tConflicts: " << conflicts << endl;
     }
 
-    cout << endl;
+    cout << "Fitness: " << globalMax - conflicts << endl;
+
+    return globalMax - conflicts;
 }
 
 void optimizeChessBoard(int populationSize, int generations) {
-    int i;
+    int i, j, a;
+    int currentPopulation = populationSize;
 
-    for (i = 0; i < populationSize; i++) {
-        cout << "#" << i + 1 << " ";
-        newRandomIndividual();
+    int fitnessIndividual;
+    vector<int> individual;
+
+    map<int, vector<int>> allIndividuals;
+    map<int, vector<int>> bestFitIndividuals;
+
+    for (i = 0; i < generations; i++) {
+        cout << endl << "----- { Generación #" << i + 1 << "} -----";
+
+        for (j = 0; j < currentPopulation; j++) {
+            cout << endl << "#" << j + 1 << "\t";
+            individual = newIndividual();
+            fitnessIndividual = fitness(individual);
+
+            allIndividuals.insert({fitnessIndividual, individual});
+        }
+        // sort(allIndividuals.begin(), allIndividuals.end(), compare);
+
+        currentPopulation = floor(currentPopulation / 2);
+
+        for (a = 0; a < currentPopulation; a++) {
+            bestFitIndividuals.insert(bestFitIndividuals.begin(),
+                                      {fitnessIndividual, individual});
+        }
+
+        allIndividuals = bestFitIndividuals;
     }
+
+    auto it = allIndividuals.begin();
+    vector<int> coordinates = it->second;
+
+    int queensCoordinates[8][8] = {
+        {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0}};
+
+    for (auto x : coordinates) {
+        for (i = 0; i < 8; i++) {
+            for (j = 0; j < 8; j++) {
+                if (j == x) {
+                    queensCoordinates[i][j] = 1;
+                } else {
+                    queensCoordinates[i][j] = 0;
+                }
+            }
+        }
+    }
+
+    cout << endl << "Solución final:" << endl;
+
+    printBoard(queensCoordinates);
 }
 
 int main() {
